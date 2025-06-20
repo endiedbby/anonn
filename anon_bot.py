@@ -98,9 +98,7 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         original_msg_id = user_original_messages.get(replied_msg_id)
 
         if update.message.text:
-            reply = await context.bot.send_message(chat_id=user_id, text=f"📬 Ответ администратора:
-
-{update.message.text}", reply_to_message_id=original_msg_id)
+            reply = await context.bot.send_message(chat_id=user_id, text=f"📬 Ответ администратора:{update.message.text}", reply_to_message_id=original_msg_id)
         elif update.message.sticker:
             reply = await context.bot.send_sticker(chat_id=user_id, sticker=update.message.sticker.file_id, reply_to_message_id=original_msg_id)
         elif update.message.voice:
