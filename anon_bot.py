@@ -17,6 +17,7 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Привет! Отправь сюда анонимное сообщение и дождись ответа.")
 
 async def forward_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("📩 Вызван forward_to_admin")
     user = update.effective_user
     msg = update.message
     is_reply_to_admin = False
@@ -145,6 +146,8 @@ def index():
 
 @web_app.route(WEBHOOK_PATH, methods=["POST"])
 def webhook():
+    data = request.get_json(force=True)
+    print("📨 Вебхук получен:", data)  # 👈 логируем всё, что приходит от Telegram
     update = Update.de_json(request.get_json(force=True), app.bot)
     app.update_queue.put_nowait(update)
     return "OK"
@@ -160,7 +163,9 @@ def run_flask():
 async def main():
     Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
     await app.initialize()
+    print("➡️ initialize done")
     await app.start()
+    print("➡️ start done")
     await app.bot.set_webhook(WEBHOOK_URL)
     print("✅ Webhook установлен:", WEBHOOK_URL)
 
