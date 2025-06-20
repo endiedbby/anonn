@@ -160,9 +160,8 @@ from threading import Thread
 def run_flask():
     web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
- Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
-
 async def main():
+    Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
