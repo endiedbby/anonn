@@ -213,7 +213,7 @@ def webhook():
     app.update_queue.put_nowait(update)
     return "OK"
 
-if name == "main":
+if __name__ == "main":
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 10000)),
