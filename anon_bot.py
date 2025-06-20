@@ -161,7 +161,9 @@ def run_flask():
     web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
 async def main():
+    import time
     Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
+    await asyncio.sleep(2)  # 👈 даём Flask время запуститься
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
