@@ -141,8 +141,8 @@ def index():
 @web_app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     data = request.get_json(force=True)
-    print("📨 Webhook получен:", data)  # 👈 логируем JSON
-    update = Update.de_json(request.get_json(force=True), app.bot)
+    print("📨 Webhook получен:", data)
+    update = Update.de_json(data, app.bot)
     app.update_queue.put_nowait(update)
     return "OK"
 
