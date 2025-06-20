@@ -161,7 +161,6 @@ def run_flask():
 
 async def main():
     Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
-    app.updater = None  # 👈 отключаем обновление polling внутри
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
