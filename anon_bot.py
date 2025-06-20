@@ -197,7 +197,7 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
 import os
 from flask import Flask
 
-web_app = Flask(_name_)
+web_app = Flask(__name__)
 TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_PATH = f"/{TOKEN}"
 WEBHOOK_URL = os.getenv("RENDER_EXTERNAL_URL") + WEBHOOK_PATH
