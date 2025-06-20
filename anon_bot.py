@@ -194,8 +194,32 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await msg.delete()
 
 
-app = ApplicationBuilder().token("7105476975:AAEoz54aY49E83eRtxQL4W9cRVQeud0njow").build()
+app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(MessageHandler(filters.COMMAND & filters.Regex("^/start$"), handle_start))
 app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
 app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
-app.run_polling()
+import os
+from flask import Flask
+
+web_app = Flask(name)
+TOKEN = os.getenv("BOT_TOKEN")
+WEBHOOK_PATH = f"/{TOKEN}"
+WEBHOOK_URL = os.getenv("RENDER_EXTERNAL_URL") + WEBHOOK_PATH
+
+@web_app.route("/")
+def index():
+    return "Бот работает!"
+
+@web_app.route(WEBHOOK_PATH, methods=["POST"])
+def webhook():
+    from telegram import Update
+    update = Update.de_json(request.get_json(force=True), app.bot)
+    app.update_queue.put_nowait(update)
+    return "OK"
+
+if name == "main":
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000)),
+        webhook_url=WEBHOOK_URL
+    )
