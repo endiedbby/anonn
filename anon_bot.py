@@ -55,9 +55,7 @@ async def forward_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 break
 
     if msg.text:
-        sent = await context.bot.send_message(chat_id=ADMIN_ID, text=f"{caption}:
-
-{msg.text}", reply_to_message_id=reply_to_msg_id)
+        sent = await context.bot.send_message(chat_id=ADMIN_ID, text=f"{caption}:{msg.text}", reply_to_message_id=reply_to_msg_id)
     elif msg.photo:
         sent = await context.bot.send_photo(chat_id=ADMIN_ID, photo=msg.photo[-1].file_id, caption=caption, reply_to_message_id=reply_to_msg_id)
     elif msg.video:
