@@ -2,7 +2,6 @@ import asyncio
 from flask import Flask, request
 from telegram import Update
 from telegram.ext import (ApplicationBuilder, ContextTypes, MessageHandler, filters)
-from keep_alive import keep_alive
 
 # Замените на ваш Telegram ID
 ADMIN_ID = 5752325781
@@ -194,8 +193,6 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await asyncio.sleep(5)
         await msg.delete()
 
-# Запускаем Flask для Replit
-keep_alive()
 
 app = ApplicationBuilder().token("7105476975:AAEoz54aY49E83eRtxQL4W9cRVQeud0njow").build()
 app.add_handler(MessageHandler(filters.COMMAND & filters.Regex("^/start$"), handle_start))
