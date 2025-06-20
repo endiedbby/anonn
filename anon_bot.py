@@ -3,7 +3,6 @@ import asyncio
 from flask import Flask, request
 from telegram import Update
 from telegram.ext import ( Application, ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters)
-from threading import Thread
 
 # Замените на ваш Telegram ID
 ADMIN_ID = 5752325781
@@ -139,7 +138,7 @@ web_app = Flask(__name__)
 def index():
     return "Бот работает!"
 
-@web_app.route(WEBHOOK_PATH, methods=["POST"])
+@web_app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     data = request.get_json(force=True)
     print("📨 Webhook получен:", data)  # 👈 логируем JSON
@@ -156,11 +155,14 @@ app.add_handler(CommandHandler("start", handle_start))
 app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
 app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
 
+from threading import Thread
+
 def run_flask():
     web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
+ Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
+
 async def main():
-    Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
