@@ -194,10 +194,6 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await msg.delete()
 
 
-app = ApplicationBuilder().token(TOKEN).build()
-app.add_handler(MessageHandler(filters.COMMAND & filters.Regex("^/start$"), handle_start))
-app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
-app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
 import os
 from flask import Flask
 
@@ -223,3 +219,7 @@ if name == "main":
         port=int(os.environ.get("PORT", 10000)),
         webhook_url=WEBHOOK_URL
     )
+app = ApplicationBuilder().token(TOKEN).build()
+app.add_handler(MessageHandler(filters.COMMAND & filters.Regex("^/start$"), handle_start))
+app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
+app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
