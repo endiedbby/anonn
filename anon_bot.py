@@ -141,6 +141,8 @@ def index():
 
 @web_app.route(WEBHOOK_PATH, methods=["POST"])
 def webhook():
+    data = request.get_json(force=True)
+    print("📨 Webhook получен:", data)  # 👈 логируем JSON
     update = Update.de_json(request.get_json(force=True), app.bot)
     app.update_queue.put_nowait(update)
     return "OK"
@@ -159,6 +161,7 @@ def run_flask():
 
 async def main():
     Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
+    app.updater = None  # 👈 отключаем обновление polling внутри
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
