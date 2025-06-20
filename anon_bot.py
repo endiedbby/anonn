@@ -133,7 +133,7 @@ WEBHOOK_URL = RENDER_URL + WEBHOOK_PATH
 if not TOKEN or not RENDER_URL:
     raise RuntimeError("❗ Убедись, что BOT_TOKEN и RENDER_EXTERNAL_URL заданы в Render")
 
-app = ApplicationBuilder().token(TOKEN).build()
+app = ( ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build())
 app.add_handler(CommandHandler("start", handle_start))
 app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
 app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
@@ -152,22 +152,20 @@ def webhook():
     app.update_queue.put_nowait(update)
     return "OK"
 
-async def setup_webhook():
+async def setup_webhook(app: Application):
     await app.bot.set_webhook(WEBHOOK_URL)
+    print("✅ Webhook установлен:", WEBHOOK_URL)
 
 from threading import Thread
-
-def run_flask():
-    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
-
 async def main():
     Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
     print("➡️ start done")
-    await app.bot.set_webhook(WEBHOOK_URL)
-    print("✅ Webhook установлен:", WEBHOOK_URL)
+
+def run_flask():
+    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
 if __name__ == "__main__":
     asyncio.run(main())
