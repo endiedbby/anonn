@@ -2,8 +2,8 @@ import os
 import asyncio
 from flask import Flask, request
 from telegram import Update
-from telegram.ext import (
-    ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters)
+from telegram.ext import ( Application, ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters)
+from threading import Thread
 
 # Замените на ваш Telegram ID
 ADMIN_ID = 5752325781
@@ -133,11 +133,6 @@ WEBHOOK_URL = RENDER_URL + WEBHOOK_PATH
 if not TOKEN or not RENDER_URL:
     raise RuntimeError("❗ Убедись, что BOT_TOKEN и RENDER_EXTERNAL_URL заданы в Render")
 
-app = ( ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build())
-app.add_handler(CommandHandler("start", handle_start))
-app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
-app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
-
 web_app = Flask(__name__)
 
 @web_app.route("/")
@@ -146,8 +141,6 @@ def index():
 
 @web_app.route(WEBHOOK_PATH, methods=["POST"])
 def webhook():
-    data = request.get_json(force=True)
-    print("📨 Вебхук получен:", data)  # 👈 логируем всё, что приходит от Telegram
     update = Update.de_json(request.get_json(force=True), app.bot)
     app.update_queue.put_nowait(update)
     return "OK"
@@ -156,16 +149,20 @@ async def setup_webhook(app: Application):
     await app.bot.set_webhook(WEBHOOK_URL)
     print("✅ Webhook установлен:", WEBHOOK_URL)
 
-from threading import Thread
+app = ( ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build())
+app.add_handler(CommandHandler("start", handle_start))
+app.add_handler(MessageHandler(filters.ALL & filters.User(ADMIN_ID), handle_admin_reply))
+app.add_handler(MessageHandler(filters.ALL & ~filters.User(ADMIN_ID), forward_to_admin))
+
+def run_flask():
+    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+
 async def main():
     Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
     await app.initialize()
     print("➡️ initialize done")
     await app.start()
     print("➡️ start done")
-
-def run_flask():
-    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
 if __name__ == "__main__":
     asyncio.run(main())
