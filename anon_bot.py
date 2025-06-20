@@ -152,12 +152,17 @@ def webhook():
 async def setup_webhook():
     await app.bot.set_webhook(WEBHOOK_URL)
 
+from threading import Thread
+
+def run_flask():
+    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+
 async def main():
+    Thread(target=run_flask).start()  # Запуск Flask в отдельном потоке
     await app.initialize()
     await app.start()
     await app.bot.set_webhook(WEBHOOK_URL)
     print("✅ Webhook установлен:", WEBHOOK_URL)
-    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
 if __name__ == "__main__":
     asyncio.run(main())
